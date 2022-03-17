@@ -23,8 +23,8 @@ CONTEST="$(cut -d'/' -f2 <<< "$CAMINHO")"
 CONTEST="${CONTEST// }"
 
 if [[ "x$POST" != "x" ]]; then
-  printf "$POST" > "$HISTORYDIR/POST"
-  printf "$CONTESTSDIR/$CONTEST" > "$HISTORYDIR/$CONTESTSDIR:$CONTEST"
+  printf "$POST" > "$CACHEDIR/POST"
+  printf "$CONTESTSDIR/$CONTEST" > "$CACHEDIR/$CONTESTSDIR:$CONTEST"
   
   if grep -qF "$CONTEST:$LOGIN:failed" $CACHEDIR/$CONTEST:$LOGIN:failed; then
     cabecalho-html

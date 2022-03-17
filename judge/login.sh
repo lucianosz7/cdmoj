@@ -19,12 +19,12 @@ source #CONFDIR#/common.conf
 source #HTMLDIR#/cgi-bin/common.sh
 
 
-for arq in $HISTORYDIR; do
+for arq in $CACHEDIR; do
 
     file="$(cat $arq)"
     
     if grep -qF "$CONTESTSDIR/$CONTEST" $arq; then
-        POST="$(cat $HISTORYDIR/POST)"
+        POST="$(cat $CACHEDIR/POST)"
         LOGIN="$(grep -A2 'name="login"' <<< "$POST" |tail -n1|tr -d '\n'|tr -d '\r')"
         SENHA="$(grep -A2 'name="senha"' <<< "$POST" |tail -n1|tr -d '\n'|tr -d '\r')"
         #escapar coisa perigosa
