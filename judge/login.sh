@@ -16,7 +16,7 @@
 
 source #CONFDIR#/judge.conf
 source #CONFDIR#/common.conf
-source #HTMLDIR#/common.sh
+source #HTMLDIR#/cgi-bin/common.sh
 
 
 for arq in $HISTORYDIR; do
