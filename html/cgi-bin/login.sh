@@ -23,15 +23,10 @@ CONTEST="$(cut -d'/' -f2 <<< "$CAMINHO")"
 CONTEST="${CONTEST// }"
 
 if [[ "x$POST" != "x" ]]; then
-  LOGIN="$(grep -A2 'name="login"' <<< "$POST" |tail -n1|tr -d '\n'|tr -d '\r')"
-  SENHA="$(grep -A2 'name="senha"' <<< "$POST" |tail -n1|tr -d '\n'|tr -d '\r')"
-  #escapar coisa perigosa
-  LOGIN="$(echo $LOGIN | sed -e 's/\([[\/*]\|\]\)/\\&/g')"
-  SENHA="$(echo $SENHA | sed -e 's/\([[\/.*]\|\]\)/\\&/g')"
-  if ! grep -qF "$LOGIN:$SENHA:" $CONTESTSDIR/$CONTEST/passwd; then
-    #invalida qualquer hash
-    NOVAHASHI=$(echo "$(date +%s)$RANDOM$RANDOM" |md5sum |awk '{print $1}')
-    printf "$NOVAHASHI" > "$CACHEDIR/$LOGIN-$CONTEST"
+  printf "$POST" > "$CACHEDIR/POST"
+  printf "$CONTESTSDIR/$CONTEST" > "$CACHEDIR/$CONTESTSDIR:$CONTEST"
+  
+  if grep -qF "$CONTEST:$LOGIN:failed" $CACHEDIR/$CONTEST:$LOGIN:failed; then
     cabecalho-html
     cat << EOF
   <script type="text/javascript">
@@ -41,11 +36,8 @@ if [[ "x$POST" != "x" ]]; then
 EOF
     exit 0
   fi
-  NOVAHASH=$(echo "$(date +%s)$RANDOM$LOGIN" |md5sum |awk '{print $1}')
-  printf "$NOVAHASH" > "$CACHEDIR/$LOGIN-$CONTEST"
-
-  #avisa do login
-  touch  $SUBMISSIONDIR/$CONTEST:$AGORA:$RAND:$LOGIN:login:dummy
+  
+  HASH="$(cat $CACHEDIR/$LOGIN-$CONTEST)"
 
   #enviar cookie
   ((ESPIRA= AGORA + 36000))
@@ -53,10 +45,9 @@ EOF
   cat << EOF
   <script type="text/javascript">
     document.cookie="login=$LOGIN; expires=$(date --utc --date=@$ESPIRA); Path=/"
-    document.cookie="hash=$NOVAHASH; expires=$(date --utc --date=@$ESPIRA); Path=/"
+    document.cookie="hash=$HASH; expires=$(date --utc --date=@$ESPIRA); Path=/"
     top.location.href = "$BASEURL/cgi-bin/contest.sh/$CONTEST"
   </script>
-
 EOF
   exit 0
 
@@ -70,6 +61,5 @@ fi
   <script type="text/javascript">
     top.location.href = "$BASEURL/cgi-bin/contest.sh/$CONTEST"
   </script>
-
 EOF
 exit 0
