@@ -23,10 +23,9 @@ CONTEST="$(cut -d'/' -f2 <<< "$CAMINHO")"
 CONTEST="${CONTEST// }"
 
 if [[ "x$POST" != "x" ]]; then
-
   echo "$POST" > "$CACHEDIR/POST"
-  echo "$CONTEST" > "$CACHEDIR/$CONTEST"
-  
+  echo "actual:$CONTEST" > "$CACHEDIR/actual:$CONTEST"
+
   if grep -qF "$CONTEST:$LOGIN:failed" $CACHEDIR/$CONTEST:$LOGIN:failed; then
     cabecalho-html
     cat << EOF

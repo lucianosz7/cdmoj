@@ -19,10 +19,21 @@ source #CONFDIR#/common.conf
 
 for ARQ in $CACHEDIR/*; do
 
+    if [[ ! -e "$ARQ" ]]; then
+        continue
+    fi
+
+    echo "Rodando Login"
     file="$(cat $ARQ)"
+
+    if grep -q "^actual" $ARQ; then
+        CONTEST="$(grep -Po '[^:]*$' $ARQ)"
+        echo $CONTEST
+    else
+        continue
+    fi
     
-    
-    if grep -qF "$CONTESTSDIR/$CONTEST" $ARQ; then
+    if grep -qF "$CONTEST" $ARQ; then
         POST="$(cat $CACHEDIR/POST)"
         LOGIN="$(grep -A2 'name="login"' <<< "$POST" |tail -n1|tr -d '\n'|tr -d '\r')"
         SENHA="$(grep -A2 'name="senha"' <<< "$POST" |tail -n1|tr -d '\n'|tr -d '\r')"
@@ -33,13 +44,13 @@ for ARQ in $CACHEDIR/*; do
         if ! grep -qF "$LOGIN:$SENHA:" $CONTESTSDIR/$CONTEST/passwd; then
             #invalida qualquer hash
             NOVAHASHI=$(echo "$(date +%s)$RANDOM$RANDOM" |md5sum |awk '{print $1}')
-            echo "$NOVAHASHI" > "$CACHEDIR/$LOGIN-$CONTEST"
+            printf "$NOVAHASHI" > "$CACHEDIR/$LOGIN-$CONTEST"
 
-            echo "$CONTEST:$LOGIN:failed" > "$CACHEDIR/$CONTEST:$LOGIN:failed"
+            printf "$CONTEST:$LOGIN:failed" > "$CACHEDIR/$CONTEST:$LOGIN:failed"
         fi
 
         NOVAHASH=$(echo "$(date +%s)$RANDOM$LOGIN" |md5sum |awk '{print $1}')
-        echo "$NOVAHASH" > "$CACHEDIR/$LOGIN-$CONTEST"
+        printf "$NOVAHASH" > "$CACHEDIR/$LOGIN-$CONTEST"
 
         #avisa do login
         touch  $SUBMISSIONDIR/$CONTEST:$AGORA:$RAND:$LOGIN:login:dummy
