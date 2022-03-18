@@ -1,4 +1,5 @@
 #!/bin/bash
+
 #This file is part of CD-MOJ.
 
 source #CONFDIR#/common.conf
