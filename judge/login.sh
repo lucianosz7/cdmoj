@@ -21,7 +21,7 @@ for arq in $CACHEDIR; do
 
     file="$(cat $arq)"
     
-    if grep -qF "$CONTESTSDIR/$CONTEST" $arq; then
+    if grep -qF "$CONTESTSDIR/$CONTEST" $file; then
         POST="$(cat $CACHEDIR/POST)"
         LOGIN="$(grep -A2 'name="login"' <<< "$POST" |tail -n1|tr -d '\n'|tr -d '\r')"
         SENHA="$(grep -A2 'name="senha"' <<< "$POST" |tail -n1|tr -d '\n'|tr -d '\r')"
