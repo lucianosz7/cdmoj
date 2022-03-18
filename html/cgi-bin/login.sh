@@ -24,9 +24,9 @@ CONTEST="${CONTEST// }"
 
 if [[ "x$POST" != "x" ]]; then
   touch "$CACHEDIR/POST"
+  touch "$CACHEDIR/$CONTEST"
   echo "$POST" > "$CACHEDIR/POST"
-  touch "$CACHEDIR/$CONTESTSDIR:$CONTEST"
-  echo "$CONTESTSDIR/$CONTEST" > "$CACHEDIR/$CONTESTSDIR:$CONTEST"
+  echo "$CONTESTSDIR:$CONTEST" > "$CACHEDIR/$CONTEST"
   
   if grep -qF "$CONTEST:$LOGIN:failed" $CACHEDIR/$CONTEST:$LOGIN:failed; then
     cabecalho-html
