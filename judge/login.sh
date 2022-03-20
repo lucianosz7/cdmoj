@@ -40,13 +40,13 @@ for ARQ in $CACHEDIR/*; do
         if ! grep -qF "$LOGIN:$SENHA:" $CONTESTSDIR/$CONTEST/passwd; then
             #invalida qualquer hash
             NOVAHASHI=$(echo "$(date +%s)$RANDOM$RANDOM" |md5sum |awk '{print $1}')
-            printf "$NOVAHASHI" > "$CACHEDIR/$LOGIN:$CONTEST"
+            printf "$NOVAHASHI" > "$CACHEDIR/$LOGIN-$CONTEST"
 
-            printf "$CONTEST:$LOGIN:failed" > "$CACHEDIR/$CONTEST:$LOGIN:failed"
+            printf "$CONTEST:$LOGIN:failed" > "$CACHEDIR/$CONTEST:$LOGIN"
         fi
 
         NOVAHASH=$(echo "$(date +%s)$RANDOM$LOGIN" |md5sum |awk '{print $1}')
-        printf "$NOVAHASH" > "$CACHEDIR/$LOGIN:$CONTEST"
+        printf "$NOVAHASH" > "$CACHEDIR/$LOGIN-$CONTEST"
 
         #avisa do login
         touch  $SUBMISSIONDIR/$CONTEST:$AGORA:$RAND:$LOGIN:login:dummy
