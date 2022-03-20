@@ -7,7 +7,7 @@ source #CONFDIR#/common.conf
 cd $CACHEDIR
 
 while true; do
-    if (( $(ls |wc -l) == 0 )); then
+    if (( $(ls |wc -l) == 4 )); then
 		printf "."
 		sleep 3
 		continue
