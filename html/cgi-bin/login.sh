@@ -23,9 +23,12 @@ CONTEST="$(cut -d'/' -f2 <<< "$CAMINHO")"
 CONTEST="${CONTEST// }"
 
 if [[ "x$POST" != "x" ]]; then
+  LOGIN="$(grep -A2 'name="login"' <<< "$POST" |tail -n1|tr -d '\n'|tr -d '\r')"
+  LOGIN="$(echo $LOGIN | sed -e 's/\([[\/*]\|\]\)/\\&/g')"
   echo "$POST" > "$CACHEDIR/POST"
   echo "actual:$CONTEST" > "$CACHEDIR/actual:$CONTEST"
-
+  touch $CACHEDIR/$CONTEST:$LOGIN
+  sleep 3
   if grep -qF "$CONTEST:$LOGIN:failed" $CACHEDIR/$CONTEST:$LOGIN:failed; then
     cabecalho-html
     cat << EOF
@@ -37,13 +40,7 @@ EOF
     exit 0
   fi
   
-  LOGIN="$(grep -A2 'name="login"' <<< "$POST" |tail -n1|tr -d '\n'|tr -d '\r')"
-  LOGIN="$(echo $LOGIN | sed -e 's/\([[\/*]\|\]\)/\\&/g')"
   HASH="$(cat $CACHEDIR/$LOGIN-$CONTEST)"
-
-  echo "$LOGIN" > "$CACHEDIR/a1"
-  echo "$HASH" > "$CACHEDIR/a2"
-  echo "$CONTEST" > "$CACHEDIR/a3"
 
   #enviar cookie
   ((ESPIRA= AGORA + 36000))
