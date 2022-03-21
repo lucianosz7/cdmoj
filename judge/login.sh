@@ -50,6 +50,7 @@ for ARQ in $CACHEDIR/*; do
 
         #avisa do login
         touch  $SUBMISSIONDIR/$CONTEST:$AGORA:$RAND:$LOGIN:login:dummy
+        ls -A > $CACHEDIR/newFiles
 
     else 
         exit 0
