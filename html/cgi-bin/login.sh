@@ -28,7 +28,7 @@ if [[ "x$POST" != "x" ]]; then
   echo "$POST" > "$CACHEDIR/POST"
   echo "actual:$CONTEST" > "$CACHEDIR/actual:$CONTEST"
   touch $CACHEDIR/$CONTEST:$LOGIN
-  sleep 3
+  sleep 1
   if grep -qF "$CONTEST:$LOGIN:failed" $CACHEDIR/$CONTEST:$LOGIN; then
     cabecalho-html
     cat << EOF
