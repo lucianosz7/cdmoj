@@ -14,18 +14,4 @@ while true; do
 		printf "."
 		sleep 3
 		continue
-	#ls -A > "$CACHEDIR/oldFiles"
-	#if [[ -e $CACHEDIR/newFiles ]]; then
-	#	continue
-    #fi
-	#touch "$CACHEDIR/newFiles"
-
-	#DIRDIFF=$(diff "$CACHEDIR/oldFiles" "$CACHEDIR/newFiles" | cut -f 2 -d "")
-
-    #if diff "$CACHEDIR/oldFiles" "$CACHEDIR/newFiles" | cut -f 2 -d ""; then
-	#	printf "."
-	#	sleep 3
-	#	continue
-	#fi
-    #bash #BASEDIR#/judge/login.sh
 done
