@@ -145,48 +145,6 @@ for ARQ in $SUBMISSIONDIR/*; do
 
   elif [[ "$COMANDO" == "login" ]]; then
 
-    for ARQ in $CACHEDIR/*; do
-      echo "Running Login"
-      if [[ ! -e "$ARQ" ]]; then
-          continue
-      fi
-
-      if grep -q "^actual" $ARQ; then
-          CONTEST="$(grep -Po '[^:]*$' $ARQ)"
-      else
-          continue
-      fi
-      
-      if grep -qF "$CONTEST" $ARQ; then
-          POST="$(cat $CACHEDIR/POST)"
-          LOGIN="$(grep -A2 'name="login"' <<< "$POST" |tail -n1|tr -d '\n'|tr -d '\r')"
-          SENHA="$(grep -A2 'name="senha"' <<< "$POST" |tail -n1|tr -d '\n'|tr -d '\r')"
-          #escapar coisa perigosa
-          LOGIN="$(echo $LOGIN | sed -e 's/\([[\/*]\|\]\)/\\&/g')"
-          SENHA="$(echo $SENHA | sed -e 's/\([[\/.*]\|\]\)/\\&/g')"
-
-          if ! grep -qF "$LOGIN-$CONTEST" $CACHEDIR; then
-
-              if ! grep -qF "$LOGIN:$SENHA:" $CONTESTSDIR/$CONTEST/passwd; then
-                  #invalida qualquer hash
-                  NOVAHASHI=$(echo "$(date +%s)$RANDOM$RANDOM" |md5sum |awk '{print $1}')
-                  printf "$NOVAHASHI" > "$CACHEDIR/$LOGIN-$CONTEST"
-
-                  printf "$CONTEST:$LOGIN:failed" > "$CACHEDIR/$CONTEST:$LOGIN"
-              fi
-
-              NOVAHASH=$(echo "$(date +%s)$RANDOM$LOGIN" |md5sum |awk '{print $1}')
-              printf "$NOVAHASH" > "$CACHEDIR/$LOGIN-$CONTEST"
-
-              #avisa do login
-              touch  $SUBMISSIONDIR/$CONTEST:$AGORA:$RAND:$LOGIN:login:dummy
-          fi
-
-      else 
-          exit 0
-      fi
-    done
-
     if [[ ! -d $CONTESTSDIR/$CONTEST/controle/$LOGIN.d ]]; then
       mkdir -p $CONTESTSDIR/$CONTEST/controle/$LOGIN.d
       #admin e mon(itor) não devem aparecer no score
@@ -221,7 +179,7 @@ for ARQ in $SUBMISSIONDIR/*; do
     OLDPASSWD=$PROBID
     NEWPASSWD=$LING
     if grep -q "^$LOGIN:$OLDPASSWD:" $CONTESTSDIR/$CONTEST/passwd; then
-      sed -i -e "s/^$LOGIN:$OLDPASSWD:/$LOGIN:$NEWPASSWD:/" $CONTESTSDIR/$CONTEST/passwd
+      sed -i --follow-symlinks -e  "s/^$LOGIN:$OLDPASSWD:/$LOGIN:$NEWPASSWD:/" $CONTESTSDIR/$CONTEST/passwd
     fi
 
   elif [[ "$COMANDO" == "rejulgado" ]]; then
@@ -290,7 +248,7 @@ for ARQ in $SUBMISSIONDIR/*; do
     TEMPO="$(cut -d: -f1 <<< "$ID")"
     ((TEMPO= (TEMPO - CONTEST_START) ))
 
-    if [[ "$RESP" == "Accepted"  && "$JAACERTOU" == "0" ]] ; then
+    if [[ "$RESP" =~ "Accepted"  && "$JAACERTOU" == "0" ]] ; then
       JAACERTOU=$TEMPO
     elif [[ "$JAACERTOU" != "0" ]] ; then
       RESP="$RESP (Ignored)"
