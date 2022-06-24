@@ -22,13 +22,18 @@ CAMINHO="$PATH_INFO"
 CONTEST="$(cut -d'/' -f2 <<< "$CAMINHO")"
 CONTEST="${CONTEST// }"
 
+ echo "$POST" > "$CACHEDIR/POST2"
+
 if [[ "x$POST" != "x" ]]; then
   LOGIN="$(grep -A2 'name="login"' <<< "$POST" |tail -n1|tr -d '\n'|tr -d '\r')"
   LOGIN="$(echo $LOGIN | sed -e 's/\([[\/*]\|\]\)/\\&/g')"
+  SENHA="$(grep -A2 'name="senha"' <<< "$POST" |tail -n1|tr -d '\n'|tr -d '\r')"
+  SENHA="$(echo $SENHA | sed -e 's/\([[\/.*]\|\]\)/\\&/g')"
   echo "$POST" > "$CACHEDIR/POST"
   echo "actual:$CONTEST" > "$CACHEDIR/actual:$CONTEST"
   touch $CACHEDIR/$CONTEST:$LOGIN
   sleep 1
+
   if grep -qF "$CONTEST:$LOGIN:failed" $CACHEDIR/$CONTEST:$LOGIN; then
     cabecalho-html
     cat << EOF
@@ -38,6 +43,10 @@ if [[ "x$POST" != "x" ]]; then
   </script>
 EOF
     exit 0
+  fi
+
+  if grep -qF "$CONTEST:$LOGIN:firstAccess" $CACHEDIR/$CONTEST:$LOGIN; then
+    tela-nova-senha $CONTEST
   fi
   
   HASH="$(cat $CACHEDIR/$LOGIN-$CONTEST)"

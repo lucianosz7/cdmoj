@@ -47,8 +47,13 @@ for ARQ in $CACHEDIR/*; do
                 printf "$CONTEST:$LOGIN:failed" > "$CACHEDIR/$CONTEST:$LOGIN"
             fi
 
+            if grep -qF "$LOGIN:$SENHA:" $CONTESTSDIR/$CONTEST/passwd; then
+                printf "$CONTEST:$LOGIN:firstAccess" > "$CACHEDIR/$CONTEST:$LOGIN"
+            fi
+
             NOVAHASH=$(echo "$(date +%s)$RANDOM$LOGIN" |md5sum |awk '{print $1}')
             printf "$NOVAHASH" > "$CACHEDIR/$LOGIN-$CONTEST"
+            #touch $CACHEDIR/$LOGIN:first:login
 
             #avisa do login
             touch  $SUBMISSIONDIR/$CONTEST:$AGORA:$RAND:$LOGIN:login:dummy
@@ -58,3 +63,9 @@ for ARQ in $CACHEDIR/*; do
         exit 0
     fi
 done
+#cd $SUBMISSIONDIR-log
+#LASTFILE="$(ls -t --quoting-style=shell-always | head -n1)"
+#if grep -qa "$LOGIN:login:dummy"  $LASTFILE; then
+#if find $SUBMISSIONDIR-log -iname '*$LOGIN:login:dummy'; then
+#    printf "Deu certo aqui"
+#fi
