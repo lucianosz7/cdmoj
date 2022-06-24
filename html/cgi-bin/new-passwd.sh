@@ -27,8 +27,12 @@ if [[ "x$POST" != "x" ]]; then
     OLD="$(echo $OLD | sed -e 's/\([[\/*]\|\]\)/\\&/g')"
     NEW="$(grep -A2 'name="newPasswd"' <<< "$POST" |tail -n1|tr -d '\n'|tr -d '\r')"
     NEW="$(echo $NEW | sed -e 's/\([[\/*]\|\]\)/\\&/g')"
+    LASTFILE ="$(ls -t $CACHEDIR/ | head -n1)"
+    printf "$(ls -t $CACHEDIR/)" >  $CACHEDIR/LAST
+    LOGIN="$(grep -F "$CONTEST:"  $CACHEDIR/$LASTFILE | grep : | cut -d : -f2)"
+    LOGIN="$(echo $LOGIN | sed -e 's/\([[\/*]\|\]\)/\\&/g')"
 
-    printf "$LOGIN:$NEW" > "$CACHEDIR/$LOGIN-$CONTEST"
+    printf "$LASTFILE:$LOGIN:$NEW" > "$CACHEDIR/$LOGIN-$CONTEST"
 
 else 
     exit 0
