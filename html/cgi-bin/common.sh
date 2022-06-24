@@ -188,3 +188,21 @@ EOF
   cat ../footer.html
   exit 0;
 }
+
+function tela-nova-senha()
+{
+  source $CONTESTSDIR/$1/conf
+  cabecalho-html
+  printf "<h1>Nova senha</h1>\n"
+  cat << EOF
+<form enctype="multipart/form-data" action="$BASEURL/cgi-bin/new-passwd.sh/$1" method="post">
+<label class="login">Senha antiga:</label><input name="oldPasswd" type="password"><br/>
+<label class="login">Nova Senha:</label><input name="newPasswd" type="password"><br/>
+  <br/>
+  <input type="submit" value="Enviar">
+  <br/>
+</form>
+EOF
+  cat ../footer.html
+  exit 0;
+}
