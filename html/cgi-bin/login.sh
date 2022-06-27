@@ -22,7 +22,6 @@ CAMINHO="$PATH_INFO"
 CONTEST="$(cut -d'/' -f2 <<< "$CAMINHO")"
 CONTEST="${CONTEST// }"
 
- echo "$POST" > "$CACHEDIR/POST2"
 
 if [[ "x$POST" != "x" ]]; then
   LOGIN="$(grep -A2 'name="login"' <<< "$POST" |tail -n1|tr -d '\n'|tr -d '\r')"

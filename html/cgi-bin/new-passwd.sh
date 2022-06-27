@@ -27,21 +27,31 @@ if [[ "x$POST" != "x" ]]; then
     OLD="$(echo $OLD | sed -e 's/\([[\/*]\|\]\)/\\&/g')"
     NEW="$(grep -A2 'name="newPasswd"' <<< "$POST" |tail -n1|tr -d '\n'|tr -d '\r')"
     NEW="$(echo $NEW | sed -e 's/\([[\/*]\|\]\)/\\&/g')"
-    LASTFILE ="$(ls -t $CACHEDIR/ | head -n1)"
-    printf "$(ls -t $CACHEDIR/)" >  $CACHEDIR/LAST
+    LASTFILE="$(ls -t $CACHEDIR/ | head -n1)"
     LOGIN="$(grep -F "$CONTEST:"  $CACHEDIR/$LASTFILE | grep : | cut -d : -f2)"
     LOGIN="$(echo $LOGIN | sed -e 's/\([[\/*]\|\]\)/\\&/g')"
 
-    printf "$LASTFILE:$LOGIN:$NEW" > "$CACHEDIR/$LOGIN-$CONTEST"
+    printf "$NEW" > "$CACHEDIR/$LOGIN-$CONTEST:tmp"
+
+    if ! grep -qF "$LOGIN:$NEW:" $CONTESTSDIR/$CONTEST/passwd; then
+      #if ! find /cdmoj-dev/ -name ".htpasswd"; then
+      if ( shopt -s nullglob; set -- .htpasswd; (( $# > 0)) ) && true || false; then
+        printf "entrou" > "$CACHEDIR/nullgliob"
+        htpasswd -ciB $CACHEDIR/.htpasswd $LOGIN < $CACHEDIR/$LOGIN-$CONTEST:tmp
+      else
+        htpasswd -Bi $CACHEDIR/.htpasswd $LOGIN < $CACHEDIR/$LOGIN-$CONTEST:tmp
+      fi
+      printf "$CONTEST:$LOGIN:AccessPermited" > "$CACHEDIR/$CONTEST:$LOGIN:ACCESS"
+    fi
 
 else 
     exit 0
 fi
 
-  printf "Content-type: text/html\n\n"
-  cat << EOF
-  <script type="text/javascript">
-    top.location.href = "$BASEURL/cgi-bin/contest.sh/$CONTEST"
-  </script>
-EOF
-exit 0
+  #printf "Content-type: text/html\n\n"
+  #cat << EOF
+  #<script type="text/javascript">
+  #  top.location.href = "$BASEURL/cgi-bin/contest.sh/$CONTEST"
+  #</script>
+#EOF
+#exit 0
