@@ -35,23 +35,26 @@ if [[ "x$POST" != "x" ]]; then
 
     if ! grep -qF "$LOGIN:$NEW:" $CONTESTSDIR/$CONTEST/passwd; then
       #if ! find /cdmoj-dev/ -name ".htpasswd"; then
-      if ( shopt -s nullglob; set -- .htpasswd; (( $# > 0)) ) && true || false; then
-        printf "entrou" > "$CACHEDIR/nullgliob"
+      if ( shopt -s nullglob; set -- $CACHEDIR/*.htpasswd; (( $# > 0)) ) && true || false; then
         htpasswd -ciB $CACHEDIR/.htpasswd $LOGIN < $CACHEDIR/$LOGIN-$CONTEST:tmp
       else
         htpasswd -Bi $CACHEDIR/.htpasswd $LOGIN < $CACHEDIR/$LOGIN-$CONTEST:tmp
       fi
       printf "$CONTEST:$LOGIN:AccessPermited" > "$CACHEDIR/$CONTEST:$LOGIN:ACCESS"
+      sed -i 's/.*$CONTEST:$LOGIN::firstAccess.*/$CONTEST:$LOGIN:AccessPermited/' $CACHEDIR/$CONTEST:$LOGIN
     fi
-
 else 
     exit 0
 fi
 
-  #printf "Content-type: text/html\n\n"
-  #cat << EOF
-  #<script type="text/javascript">
-  #  top.location.href = "$BASEURL/cgi-bin/contest.sh/$CONTEST"
-  #</script>
-#EOF
-#exit 0
+  #enviar cookie
+  ((ESPIRA= AGORA + 36000))
+  printf "Content-type: text/html\n\n"
+  cat << EOF
+  <script type="text/javascript">
+    document.cookie="login=$LOGIN; expires=$(date --utc --date=@$ESPIRA); Path=/"
+    document.cookie="hash=$NEW; expires=$(date --utc --date=@$ESPIRA); Path=/"
+    top.location.href = "$BASEURL/cgi-bin/contest.sh/$CONTEST"
+  </script>
+EOF
+  exit 0

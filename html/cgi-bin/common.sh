@@ -155,7 +155,9 @@ function verifica-login()
     echo Nao
   else
     HASHARMAZENADA="$(< $CACHEDIR/$LOGIN-$SITE)"
-    if [[ "$HASH" != "$HASHARMAZENADA" ]]; then
+    VERIFICACAO="$(htpasswd -vb $CACHEDIR/.htpasswd $LOGIN $HASH)"
+    if [[ "$VERIFICACAO" == "password verification failed" ]]; then
+    #if [[ "$HASH" != "$HASHARMAZENADA" ]]; then
       echo Nao
     else
       echo Sim
