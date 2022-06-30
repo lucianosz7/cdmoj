@@ -44,7 +44,7 @@ EOF
     exit 0
   fi
 
-  if grep -qF "$CONTEST:$LOGIN:firstAccess" $CACHEDIR/$CONTEST:$LOGIN; then
+  if ! grep -qF "$CONTEST:$LOGIN:AccessPermited" $CACHEDIR/$CONTEST:$LOGIN; then
     tela-nova-senha $CONTEST
   fi
   

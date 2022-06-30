@@ -35,7 +35,7 @@ if [[ "x$POST" != "x" ]]; then
 
     if ! grep -qF "$LOGIN:$NEW:" $CONTESTSDIR/$CONTEST/passwd; then
       #if ! find /cdmoj-dev/ -name ".htpasswd"; then
-      if ( shopt -s nullglob; set -- $CACHEDIR/*.htpasswd; (( $# > 0)) ) && true || false; then
+      if ! ( shopt -s nullglob; set -- $CACHEDIR/*.htpasswd; (( $# > 0)) ) && true || false; then
         htpasswd -ciB $CACHEDIR/.htpasswd $LOGIN < $CACHEDIR/$LOGIN-$CONTEST:tmp
       else
         htpasswd -Bi $CACHEDIR/.htpasswd $LOGIN < $CACHEDIR/$LOGIN-$CONTEST:tmp
