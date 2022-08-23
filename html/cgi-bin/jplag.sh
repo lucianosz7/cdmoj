@@ -15,6 +15,8 @@
 #along with CD-MOJ.  If not, see <http://www.gnu.org/licenses/>.
 
 source common.sh
+
+POST="$(cat )"
 AGORA=$(date +%s)
 
 
@@ -29,17 +31,17 @@ CAMINHO="$PATH_INFO"
 CONTEST="$(cut -d'/' -f2 <<< "$CAMINHO")"
 CONTEST="${CONTEST// }"
 
-if [[ "x$CONTEST" == "x" ]] || [[ ! -d "$CONTESTSDIR/$CONTEST" ]] || 
-  [[ "$CONTEST" == "admin" ]]; then
-  tela-erro
-  exit 0
+if [[ "x$CONTEST" == "x" ]] || [[ ! -d "$CONTESTSDIR/$CONTEST" ]] ||
+[[ "$CONTEST" == "admin" ]]; then
+    tela-erro
+    exit 0
 fi
 
 source $CONTESTSDIR/$CONTEST/conf
 if verifica-login $CONTEST| grep -q Nao; then
-  tela-login $CONTEST
+    tela-login $CONTEST
 else
-  incontest-cabecalho-html $CONTEST
+    incontest-cabecalho-html $CONTEST
 fi
 printf "<h1>SHERLOCK de \"<em>$CONTEST_NAME</em>\"</h1>\n"
 
@@ -62,12 +64,30 @@ EOF
 TOTPROBS=${#PROBS[@]}
 #((TOTPROBS=TOTPROBS/5))
 
-LINGUAGEMS=(java python3 cpp csharp char text scheme)
+LINGUAGENS=(java python3 cpp csharp char text scheme)
 TOTLINGS=${#LINGUAGEMS[@]}
 for ((i=0;i<TOTLINGS;i+=1)); do
-   SELETOR="$SELETOR <option value=\"$i\">${LINGUAGEMS[$i]}</option>"
+    SELETOR="$SELETOR <option value=\"$i\">${LINGUAGEMS[$i]}</option>"
 done
 
+if [[ "$REQUEST_METHOD" == "POST" ]];then
+    LINGUAGEM="$(grep -A2 'name="linguagem"' <<< "$POST" |tail -n1|tr -d '\n'|tr -d '\r')"
+    LINGUAGEM=${LINGUAGENS[$LINGUAGEM]}
+    #avisa do login
+    touch  $SUBMISSIONDIR/$CONTEST:$AGORA:$RAND:$LOGIN:jplag:analisar:"$LINGUAGEM"
+    #sleep 3
+    for ((i=0;i<TOTPROBS;i+=5)); do
+        printf "<h2>${PROBS[$((i+3))]} - ${PROBS[$((i+2))]}</h2>"
+        printf "<pre>"
+        cd $CONTESTSDIR/$CONTEST
+        ARQUIVOS=$(grep ":$i:Accepted" data/*|cut -d: -f2,3| while read LINE; do echo submissions/${LINE}*-${PROBS[$((i+3))]}.*; done)
+        echo "$ARQUIVOS"
+        $CONTESTSDIR/../bin/sherlock -t 20 $ARQUIVOS
+        printf "</pre>"
+        printf "<br/><br/>"
+    done
+else
+    
 cat << EOF
 	<form enctype="multipart/form-data" action="$BASEURL/cgi-bin/jplag.sh/$CONTEST" method="post">
 		<div class="row">
@@ -79,7 +99,7 @@ cat << EOF
 			</div>
 		</div>
 			<div class="row">
-				<div class="row__cell--1"></div>	
+				<div class="row__cell--1"></div>
 				<div class="row__cell--fill--btn">
 					<input id="btn-form" type="submit" value="Analisar">
 				</div>
@@ -87,18 +107,11 @@ cat << EOF
 		</div>
 	</form>
 EOF
+    
+fi
 
-<<comment
-for ((i=0;i<TOTPROBS;i+=5)); do
-  printf "<h2>${PROBS[$((i+3))]} - ${PROBS[$((i+2))]}</h2>"
-  printf "<pre>"
-  cd $CONTESTSDIR/$CONTEST
-  ARQUIVOS=$(grep ":$i:Accepted" data/*|cut -d: -f2,3| while read LINE; do echo submissions/${LINE}*-${PROBS[$((i+3))]}.*; done)
-  echo "$ARQUIVOS"
-  $CONTESTSDIR/../bin/sherlock -t 20 $ARQUIVOS
-  printf "</pre>"
-  printf "<br/><br/>"
-done
-comment
+
+
+
 
 incontest-footer

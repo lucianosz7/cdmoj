@@ -295,6 +295,15 @@ for ARQ in $SUBMISSIONDIR/*; do
       sed -i "s/^$TEMPO:\(.*\):$ID$/$TEMPO:\1 (Rejulgando):$ID/" $CONTESTSDIR/$CONTEST/controle/history
     fi
 
+  elif [[ "$COMANDO" == "jplag" ]]; then
+    ACAO="$(cut -d: -f6 <<< "$N")"
+    LINGUAGEM="$(cut -d: -f7 <<< "$N")"
+
+    if [[ "$ACAO" == "analisar" ]]; then
+      mkdir -p "$CONTESTSDIR/$CONTEST_ID/jplag"
+      java -jar "$CONTESTSDIR"/"$CONTEST_ID"/jplag/*.jar -l $LINGUAGEM $CONTESTSDIR/$CONTEST/submissions/ -r "$CONTESTSDIR"/"$CONTEST_ID"/jplag/result/ &> /dev/null
+    fi
+
   elif [[ "$COMANDO" == "submit" ]]; then
     #SITE do problema:
     SITE=${PROBS[PROBID]}
