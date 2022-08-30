@@ -43,19 +43,11 @@ if verifica-login $CONTEST| grep -q Nao; then
 else
     incontest-cabecalho-html $CONTEST
 fi
-printf "<h1>SHERLOCK de \"<em>$CONTEST_NAME</em>\"</h1>\n"
+printf "<h1>JPLAG</h1>\n"
 
 cat << EOF
-<p><em>Sherlock</em> é uma ferramenta para detecção de plágio. Informações
-sobre esta ferramente acesse
-<a href="http://sydney.edu.au/engineering/it/~scilect/sherlock/">http://sydney.edu.au/engineering/it/~scilect/sherlock/</a></p>
-<br>
-<p>Não considere esta ferramenta como única fonte de deteção de plágio, pode
-acontecer falsos positivos, por isso uma análise mais criteriosa nos
-arquivos apontados como identicos deve ser utilizada</p>
-<br>
-<p>Aqui serão mostrados apenas similaridades acima de 20%.</p>
-<br>
+<p>JPlag é um sistema que encontra semelhanças entre vários conjuntos de arquivos de código-fonte Desta forma, pode detectar plágio de software e conluio no desenvolvimento de software. <br>O JPlag atualmente suporta várias linguagens de programação, metamodelos EMF e texto em linguagem natural.</p><br>
+<p><b>Caso a página não atualize com novos dados aós clicar no botão de anále atualize a página.</b></p>
 <p>Esta página ainda é EXPERIMENTAL, alguma coisa ainda pode dar
 errado</p><br/>
 EOF
@@ -65,53 +57,76 @@ TOTPROBS=${#PROBS[@]}
 #((TOTPROBS=TOTPROBS/5))
 
 LINGUAGENS=(java python3 cpp csharp char text scheme)
-TOTLINGS=${#LINGUAGEMS[@]}
+TOTLINGS=${#LINGUAGENS[@]}
 for ((i=0;i<TOTLINGS;i+=1)); do
-    SELETOR="$SELETOR <option value=\"$i\">${LINGUAGEMS[$i]}</option>"
+    SELETOR="$SELETOR <option value=\"$i\">${LINGUAGENS[$i]}</option>"
 done
+
+echo "
+	<form enctype="multipart/form-data" action="$BASEURL/cgi-bin/jplag.sh/$CONTEST" method="post">
+		Linguagem: <select name="linguagem" id="select-clarification">$SELETOR</select>
+		<input id="btn-form" type="submit" value="Analisar">
+	</form>
+"
 
 if [[ "$REQUEST_METHOD" == "POST" ]];then
     LINGUAGEM="$(grep -A2 'name="linguagem"' <<< "$POST" |tail -n1|tr -d '\n'|tr -d '\r')"
     LINGUAGEM=${LINGUAGENS[$LINGUAGEM]}
-    #avisa do login
     touch  $SUBMISSIONDIR/$CONTEST:$AGORA:$RAND:$LOGIN:jplag:analisar:"$LINGUAGEM"
-    #sleep 3
-    for ((i=0;i<TOTPROBS;i+=5)); do
-        printf "<h2>${PROBS[$((i+3))]} - ${PROBS[$((i+2))]}</h2>"
-        printf "<pre>"
-        cd $CONTESTSDIR/$CONTEST
-        ARQUIVOS=$(grep ":$i:Accepted" data/*|cut -d: -f2,3| while read LINE; do echo submissions/${LINE}*-${PROBS[$((i+3))]}.*; done)
-        echo "$ARQUIVOS"
-        $CONTESTSDIR/../bin/sherlock -t 20 $ARQUIVOS
-        printf "</pre>"
-        printf "<br/><br/>"
-    done
-else
-    
-cat << EOF
-	<form enctype="multipart/form-data" action="$BASEURL/cgi-bin/jplag.sh/$CONTEST" method="post">
-		<div class="row">
-				<div class="row__cell--1">
-						<label>Linguagem: </label><br>
-				</div>
-			<div class="row__cell">
-				<select name="linguagem" id="select-clarification">$SELETOR</select>
-			</div>
-		</div>
-			<div class="row">
-				<div class="row__cell--1"></div>
-				<div class="row__cell--fill--btn">
-					<input id="btn-form" type="submit" value="Analisar">
-				</div>
-			</div>
-		</div>
-	</form>
+
+    if [[ -f $HTMLDIR/jplag/$CONTEST/matches_avg.csv ]]; then 
+        for ((i=0;i<TOTPROBS;i+=5)); do
+            printf "<h3>${PROBS[$((i+3))]} - ${PROBS[$((i+2))]}</h3>"
+            cat << EOF
+                <table border="1"><tr><th>Submiss&atilde;o 1</th><th>Submiss&atilde;o 2</th><th>Taxa de Pl&aacute;gio</th></tr>
 EOF
+            while read LINE; do
+                PROBLEM="$(cut -d '-' -f3 <<< "$LINE" | cut -d. -f1 | cut -d ';' -f1)"
+                SUBMISSION1="$(cut -d '-' -f2 <<< "$LINE" | cut -d. -f1 | cut -d ';' -f1)"
+                SUBMISSION2="$(cut -d '-' -f4 <<< "$LINE" | cut -d. -f1 | cut -d ';' -f1)"
+                TAXA="$(cut -d ';' -f4 <<< "$LINE" | cut -d ';' -f1)"
+        
+                if [[ "${PROBS[$((i+3))]}" == "$PROBLEM" ]]; then
+                    cat << EOF
+                        <tr>
+                            <td>$SUBMISSION1</td>
+                            <td>$SUBMISSION2</td>
+                            <td><a href="$BASEURL/jplag/$CONTEST/index.html">$TAXA</a></td>
+                        </tr>
+EOF
+                fi
+            done < $HTMLDIR/jplag/$CONTEST/matches_avg.csv 
+            echo "</table><br><br>"
+        done 
+    fi
+else
+     if [[ -f $HTMLDIR/jplag/$CONTEST/matches_avg.csv ]]; then
+            for ((i=0;i<TOTPROBS;i+=5)); do
+                printf "<h2>${PROBS[$((i+3))]} - ${PROBS[$((i+2))]}</h2>"
+                cat << EOF
+	       	        <table border="1"><tr><th>Submiss&atilde;o 1</th><th>Submiss&atilde;o 2</th><th>Taxa de Pl&aacute;gio</th></tr>
+EOF
+                while read LINE; do
+                    PROBLEM="$(cut -d '-' -f3 <<< "$LINE" | cut -d. -f1 | cut -d ';' -f1)"
+                    SUBMISSION1="$(cut -d '-' -f2 <<< "$LINE" | cut -d. -f1 | cut -d ';' -f1)"
+                    SUBMISSION2="$(cut -d '-' -f4 <<< "$LINE" | cut -d. -f1 | cut -d ';' -f1)"
+		            TAXA="$(cut -d ';' -f4 <<< "$LINE" | cut -d ';' -f1)"
+		    
+                    if [[ "${PROBS[$((i+3))]}" == "$PROBLEM" ]]; then
+                        cat << EOF
+                                <tr>
+                                    <td>$SUBMISSION1</td>
+                                    <td>$SUBMISSION2</td>
+                                    <td><a href="$BASEURL/jplag/$CONTEST/index.html">$TAXA</a></td>
+                                </tr>
+EOF
+                    fi
+                done < $HTMLDIR/jplag/$CONTEST/matches_avg.csv 
+		echo "</table><br><br>"
+            done
+        
+    fi
     
 fi
-
-
-
-
 
 incontest-footer
