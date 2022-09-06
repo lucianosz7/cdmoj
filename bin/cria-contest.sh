@@ -74,6 +74,10 @@ for i in controle data enunciados submissions; do
     mkdir -p "$CONTESTSDIR/$CONTEST_ID/$i"
 done
 
+#Pasta para copiar submissoes aceitas
+mkdir -p "$CONTESTSDIR/$CONTEST_ID/submissions/accepted"
+chmod 777 "$CONTESTSDIR/$CONTEST_ID/submissions/accepted"
+
 #data of users must be writabble by www-data
 chmod go+rwx "$CONTESTSDIR/$CONTEST_ID/data"
 
