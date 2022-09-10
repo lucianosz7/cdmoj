@@ -74,6 +74,16 @@ for i in controle data enunciados submissions; do
     mkdir -p "$CONTESTSDIR/$CONTEST_ID/$i"
 done
 
+for i in clarifications answers; do
+  mkdir -p "$CONTESTSDIR/$CONTEST_ID/messages/$i"
+  chmod go+rwx "$CONTESTSDIR/$CONTEST_ID/messages/$i"
+done
+
+for i in files_after files_before; do
+  touch "$CONTESTSDIR/$CONTEST_ID/messages/$i"
+  chmod go+rwx "$CONTESTSDIR/$CONTEST_ID/messages/$i"
+done
+
 #Pasta para copiar submissoes aceitas
 mkdir -p "$CONTESTSDIR/$CONTEST_ID/submissions/accepted"
 chmod 777 "$CONTESTSDIR/$CONTEST_ID/submissions/accepted"
